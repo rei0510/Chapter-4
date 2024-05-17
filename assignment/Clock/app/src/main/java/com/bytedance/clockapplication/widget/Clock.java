@@ -4,12 +4,15 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Clock extends View {
 
@@ -106,6 +109,28 @@ public class Clock extends View {
         drawNeedles(canvas);
 
         // todo 每一秒刷新一次，让指针动起来
+          //第一种方法，使用Handler和Runnable
+        Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                invalidate();//间接触发onDraw()函数
+            }
+        };
+
+        handler.postDelayed(runnable,1000);
+
+
+//        //第二种方法，使用Timer
+//        Timer timer = new Timer();
+//        TimerTask timerTask = new TimerTask() {
+//            @Override
+//            public void run() {
+//                invalidate();
+//            }
+//        };
+//
+//        timer.schedule(timerTask,1000);
 
     }
 
@@ -167,6 +192,7 @@ public class Clock extends View {
         drawPointer(canvas, 2, nowSeconds);
         // 画分针
         // todo 画分针
+        drawPointer(canvas, 1, nowMinutes);
         // 画时针
         int part = nowMinutes / 12;
         drawPointer(canvas, 0, 5 * nowHours + part);
@@ -189,7 +215,9 @@ public class Clock extends View {
                 break;
             case 1:
                 // todo 画分针，设置分针的颜色
-
+                degree = value * UNIT_DEGREE;
+                mNeedlePaint.setColor(Color.RED);
+                pointerHeadXY = getPointerHeadXY(MINUTE_POINTER_LENGTH, degree);
                 break;
             case 2:
                 degree = value * UNIT_DEGREE;
